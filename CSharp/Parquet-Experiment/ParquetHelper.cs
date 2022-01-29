@@ -36,11 +36,12 @@ namespace Parquet_Experiment
 
       var schema = new Schema(IdKey.Field, NameKey.Field, CategoryKey.Field);
 
-      using (var fileStream = File.OpenWrite(Path.Combine(location, fileName)))
+      using (var fileStream = new FileStream(Path.Combine(location, fileName), FileMode.OpenOrCreate))
       {
         ParquetOptions op = new ParquetOptions() { };
 
-        using (var parquetWriter = new ParquetWriter(schema, fileStream))
+        // Append every time.
+        using (var parquetWriter = new ParquetWriter(schema, fileStream, op, true))
         {
           using (ParquetRowGroupWriter groupWriter = parquetWriter.CreateRowGroup())
           {
