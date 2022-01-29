@@ -1,7 +1,9 @@
 ﻿using Parquet;
 using Parquet.Data;
 using Parquet_Experiment.Collection;
+using Parquet_Experiment.DataStructure;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +14,8 @@ namespace Parquet_Experiment
   internal static class ParquetHelper
   {
     private static string fileName = "test.parquet";
+    private static string fileName2 = "serialised-test.parquet";
+
     public static void WriteTest(string location)
     {
       EmployeeCollection col = new EmployeeCollection();
@@ -41,8 +45,12 @@ namespace Parquet_Experiment
         ParquetOptions op = new ParquetOptions() { };
 
         // Append every time.
-        using (var parquetWriter = new ParquetWriter(schema, fileStream, op, true))
+        using (var parquetWriter = new ParquetWriter(schema, fileStream))
         {
+          // snappy is the default one. We are setting it to show that this is how it is done.
+          parquetWriter.CompressionMethod = CompressionMethod.Snappy;
+
+          //parquetWriter.CompressionLevel = 2;
           using (ParquetRowGroupWriter groupWriter = parquetWriter.CreateRowGroup())
           {
             groupWriter.WriteColumn(IdKey);
@@ -50,7 +58,6 @@ namespace Parquet_Experiment
             groupWriter.WriteColumn(CategoryKey);
           }
         }
-
       }
     }
 
@@ -81,6 +88,26 @@ namespace Parquet_Experiment
             }
           }
         }
+      }
+    }
+
+    public static void SerializeAndSave(string location)
+    {
+      EmployeeCollection col = new EmployeeCollection();
+
+      using (var fileStream = new FileStream(Path.Combine(location, fileName), FileMode.OpenOrCreate))
+      {
+        ParquetConvert.Serialize(col.EmployeeCollections, fileStream);
+      }
+    }
+
+    public static Employee[] Derialize(string location)
+    {
+      using (var fileStream = new FileStream(Path.Combine(location, fileName), FileMode.Open))
+      {
+        // though it is a collection that we have serialised, just mention the type to deserialize.
+        var data = ParquetConvert.Deserialize<Employee>(fileStream);
+        return data;
       }
     }
   }

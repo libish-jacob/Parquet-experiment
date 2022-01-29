@@ -1,5 +1,6 @@
 ﻿using Parquet_Experiment.DataStructure;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,18 +10,20 @@ namespace Parquet_Experiment.Collection
 {
   internal class EmployeeCollection
   {
-    private int length = 100;
-    public IList<Employee> EmployeeCollections { get; set; } = new List<Employee>();
+    private int length = 10000000;
+
+    public ConcurrentBag<Employee> EmployeeCollections { get; set; } = new ConcurrentBag<Employee>();
 
     public EmployeeCollection()
     {
-      for (int i = 0; i < length; i++)
-      {
-        int id = Random.Shared.Next(int.MaxValue);
-        Catagory ob = new();
-        var category = ob.GetRandom();
-        EmployeeCollections.Add(new Employee() { Id = id, Name = "Employee - "+id, Catagory = category });
-      }      
+      Parallel.For(0, length,
+                   index =>
+                   {
+                     int id = Random.Shared.Next(int.MaxValue);
+                     Catagory ob = new();
+                     var category = ob.GetRandom();
+                     EmployeeCollections.Add(new Employee() { Id = id, Name = "Employee - " + id, Catagory = category });
+                   });
     }
 
     internal IList<string> GetEmployeeCategorys()

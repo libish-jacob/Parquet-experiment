@@ -7,5 +7,8 @@ using Parquet_Experiment.Collection;
 Console.WriteLine("Hello, World!");
 var location = AppDomain.CurrentDomain.BaseDirectory;
 
-ParquetHelper.WriteTest(location);
-ParquetHelper.ReadTest(location);
+//ParquetHelper.WriteTest(location);
+//ParquetHelper.ReadTest(location);
+
+//ParquetHelper.SerializeAndSave(location);
+var res = ParquetHelper.Derialize(location);
