@@ -10,13 +10,18 @@ namespace Parquet_Experiment.Collection
 {
   internal class EmployeeCollection
   {
-    private int length = 10000000;
+    private int RecordSizeNeeded { get; set; } = 10000000;
 
     public ConcurrentBag<Employee> EmployeeCollections { get; set; } = new ConcurrentBag<Employee>();
 
-    public EmployeeCollection()
+    public EmployeeCollection(int recordSize = 0)
     {
-      Parallel.For(0, length,
+      if (recordSize != 0)
+      {
+        RecordSizeNeeded = recordSize;
+      }
+
+      Parallel.For(0, RecordSizeNeeded,
                    index =>
                    {
                      int id = Random.Shared.Next(int.MaxValue);
